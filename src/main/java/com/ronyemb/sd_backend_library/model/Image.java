@@ -6,15 +6,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
-@Setter
-@Getter
-@NoArgsConstructor
-@ToString // Facilita la depuración
+
+@ToString(exclude = "imageId") // Facilita la depuración
 @Entity
 public class Image {
 
@@ -33,9 +28,43 @@ public class Image {
     private String imageId;
 
     // Constructor sin ID para crear objetos sin ID
+    public Image(){}
+
     public Image(String name, String imageUrl, String imageId) {
         this.name = name;
         this.imageUrl = imageUrl;
+        this.imageId = imageId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public @NotBlank(message = "Name cannot be blank") String getName() {
+        return name;
+    }
+
+    public void setName(@NotBlank(message = "Name cannot be blank") String name) {
+        this.name = name;
+    }
+
+    public @NotBlank(message = "Image URL cannot be blank") @Pattern(regexp = "^(https?|ftp)://[^ /$.?#].[^ ]*$", message = "Invalid URL format") String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(@NotBlank(message = "Image URL cannot be blank") @Pattern(regexp = "^(https?|ftp)://[^ /$.?#].[^ ]*$", message = "Invalid URL format") String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public @NotBlank(message = "Image ID cannot be blank") String getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(@NotBlank(message = "Image ID cannot be blank") String imageId) {
         this.imageId = imageId;
     }
 }

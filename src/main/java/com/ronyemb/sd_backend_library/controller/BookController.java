@@ -1,5 +1,6 @@
 package com.ronyemb.sd_backend_library.controller;
 
+import com.ronyemb.sd_backend_library.exception.ImageProcessingException;
 import com.ronyemb.sd_backend_library.model.Book;
 import com.ronyemb.sd_backend_library.dto.BookRequest;
 import com.ronyemb.sd_backend_library.dto.BookResponse;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.ronyemb.sd_backend_library.service.BookService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -101,5 +103,34 @@ public class BookController {
         bookResponse.setPrice(book.getPrice());
         bookResponse.setImage(book.getImage());
         return bookResponse;
+    }
+
+    @PutMapping("/{id}/image")
+    public ResponseEntity<BookResponse> updateBookImage(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Optional<Book> optionalBook = bookService.getBookById(id); // Obtener el libro por id
+
+            if (optionalBook.isEmpty()) {
+                // Si el libro no existe, devolver 404 Not Found
+                return ResponseEntity.notFound().build();
+            }
+
+            // Obtener el libro y actualizar la imagen
+            Book updatedBook = bookService.updateBookImage(file, optionalBook.get());
+
+            // Convertir el libro actualizado a un DTO BookResponse
+            BookResponse bookResponse = convertToBookResponse(updatedBook);
+
+            return ResponseEntity.ok(bookResponse);
+
+        } catch (ImageProcessingException e) {
+            // En caso de error al procesar la imagen, devolver un error 400 Bad Request
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            // En caso de cualquier otro error, devolver un error 500 Internal Server Error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
